@@ -13,10 +13,16 @@ WORKDIR $APP_HOME
 
 COPY Pipfile Pipfile.lock ./
 
-RUN pip install pipenv --no-cache-dir && pipenv install
+RUN pip install --upgrade pip --no-cache-dir && pip install pipenv --no-cache-dir && pipenv install
 
 COPY . $APP_HOME
 
 RUN chown -R app:app $APP_HOME
 
+EXPOSE 5000
+
+WORKDIR $HOME
+
 USER app
+
+CMD gunicorn --worker-class gevent --workers 8 --bind 0.0.0.0:5000 interview:create_app('DevConfig') --max-requests 10000 --timeout 5 --keep-alive 5 --log-level info

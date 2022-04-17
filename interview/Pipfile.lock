@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "ff6a129ffc42737d466ea54b4612448df312bebc336fc57b51a60cb690cc9045"
+            "sha256": "6afaf1529a6e7cf03c8d842b93215013ccb00ed60db5a3c3abc0733e52cd0edb"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -113,11 +113,11 @@
         },
         "importlib-resources": {
             "hashes": [
-                "sha256:9c4c12f9ef4329a00c1f72f30bddb4f10e582766b8705980bb76356b3ba8bc91",
-                "sha256:f6a4a9949f36ae289facec8dac1a899a54cbaf6a135cc8552d2c8b69209c06a3"
+                "sha256:b6062987dfc51f0fcb809187cffbd60f35df7acb4589091f154214af6d0d49d3",
+                "sha256:e447dc01619b1e951286f3929be820029d48c75eb25d265c28b92a16548212b8"
             ],
             "markers": "python_version < '3.9'",
-            "version": "==5.7.0"
+            "version": "==5.7.1"
         },
         "itsdangerous": {
             "hashes": [
@@ -238,16 +238,6 @@
             ],
             "index": "pypi",
             "version": "==8.0.27"
-        },
-        "mysqlclient": {
-            "hashes": [
-                "sha256:3f39855a4ad22805361e782cc4d1010ac74796225fa2d1c03cc16673ccdc983a",
-                "sha256:a6b5648f648b16335e3b1aaec93dc3fcc81a9a661180e306936437cc522c810b",
-                "sha256:edd42ccaa444b00702d5374b2f5f7585c9d0ce201917f15339f1c3cf91c1b1ed",
-                "sha256:fb2f75aea14722390d2d8ddf384ad99da708c707a96656210a7be8af20a2c5e5"
-            ],
-            "index": "pypi",
-            "version": "==2.0.1"
         },
         "protobuf": {
             "hashes": [
