@@ -37,14 +37,14 @@ class DevConfig(BaseConfig):
     load_dotenv(os.path.join(basedir, '.env'))
     # Global COnfigurations
     DEBUG = _str_to_bool(os.getenv('DEBUG', False))
-    APP_NAME = os.getenv("Interview")
+    APP_NAME = os.getenv("APP_NAME")
     APP_LONG_NAME = os.getenv('APP_LONG_NAME')
     # SERVER_NAME = os.getenv('SERVER_NAME', "localhost:5000")
 
     SECRET_KEY = os.getenv('SECRET_KEY') or 'SECRET_KEY'
 
     # Database
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'app.db')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     SQLALCHEMY_ECHO = _str_to_bool(os.getenv('SQLALCHEMY_ECHO', os.getenv('DEBUG', False)))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
