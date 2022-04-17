@@ -128,6 +128,12 @@ def list_per_store(store_id):
         description: User login failed.
     """
 
+    store_model = Store.query.get(store_id)
+    if store_model is None:
+        return jsonify({
+            'message': 'There is no store with this id'
+        }), 400
+
     cnab_list = TransactionEntry.query.filter_by(store_id=store_id).all()
     serialized_object = [_c.serialize_cnab_item for _c in cnab_list]
     return jsonify(serialized_object), 200
