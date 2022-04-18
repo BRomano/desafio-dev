@@ -3,6 +3,7 @@ FROM node:lts-alpine AS build
 
 ENV HOME=/home/app/
 
+RUN mkdir -p $HOME
 #Set work directory
 WORKDIR $HOME
 
@@ -15,9 +16,13 @@ RUN yarn install && yarn run build
 # 2. Setup nginx
 FROM nginx:1.19.10-alpine
 
+RUN mkdir -p /home/app/
+WORKDIR /home/app/
 COPY --from=build /home/app/.nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /home/app/dist ./dist
 
 WORKDIR /usr/share/nginx/html
-#COPY --from=build /home/app/dist .
+
 EXPOSE 80
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+
+CMD ["nginx", "-g", "daemon off;"]

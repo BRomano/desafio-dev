@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -9,7 +10,7 @@ from werkzeug.utils import import_string
 
 from interview.init_routes import init_routes
 
-
+MIGRATION_DIR = os.path.join('migrations')
 db = SQLAlchemy(session_options={"autoflush": True, 'expire_on_commit': False})
 migrate = Migrate()
 cache = Cache()
@@ -50,6 +51,6 @@ def create_app(config_class='DevConfig'):
 
     init_routes(app)
 
-    migrate.init_app(app, db)
+    migrate.init_app(app, db, directory=MIGRATION_DIR)
 
     return app

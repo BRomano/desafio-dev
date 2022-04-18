@@ -9,15 +9,18 @@ services:
       retries: 5
     environment:
       - MYSQL_DATABASE=interview
-        MYSQL_ROOT_PASSWORD=#Mudar123
-        MYSQL_USER=BRomano
-        MYSQL_PASSWORD=#Mudar123
+      - MYSQL_ROOT_PASSWORD=#Mudar123
+      - MYSQL_USER=BRomano
+      - MYSQL_PASSWORD=#Mudar123
     expose:
       - 3306
+    ports:
+      - 3306:3306
   migration:
     build: interview
-    command: flask db upgrade
+    command: flask db upgrade --directory interview/migrations
     environment:
+      - FLASK_APP=interview:create_app('DevConfig')
       - DATABASE_URL="mysql://BRomano:#Mudar123@mysql:3306/interview"
     depends_on:
       - mysql
@@ -29,11 +32,11 @@ services:
       - 5000
     environment:
       - APP_NAME="interview"
-        DEBUG=True
-        APP_LONG_NAME="Interview Test"
-        SECRET_KEY=brunoromano
-        DATABASE_URL="mysql://BRomano:#Mudar123@mysql:3306/interview"
-        SQLALCHEMY_ECHO=False
+      - DEBUG=True
+      - APP_LONG_NAME="Interview Test"
+      - SECRET_KEY=brunoromano
+      - DATABASE_URL="mysql://BRomano:#Mudar123@mysql:3306/interview"
+      - SQLALCHEMY_ECHO=False
     depends_on:
       - mysql
   proxy:
