@@ -1,6 +1,7 @@
 export default interface Cnab {
-  id: null;
+  id: number;
   transactionType: number;
+  transactionTypeStr: string;
   occurrenceAt: any;
   value: number;
   cpf: string;

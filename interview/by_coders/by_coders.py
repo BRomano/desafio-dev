@@ -27,6 +27,35 @@ CNAB_LOJA_NOME = CNAB(62, 81)
 TRANSACTION_KIND_PLUS = [1, 4, 5, 6, 7, 8]
 TRANSACTION_KIND_MINUS = [2, 3, 9]
 
+transaction_type = {
+    1: 'Débito',
+    2: 'Boleto',
+    3: 'Financiamento',
+    4: 'Crédito',
+    5: 'Receb. Empres',
+    6: 'Vendas',
+    7: 'Recebimento TED',
+    8: 'Recebimento DOC',
+    9: 'Aluguel',
+}
+
+
+def _serialize_cnab_item(item):
+    type_name = 'None'
+    if item.transaction_type in transaction_type:
+        type_name = transaction_type[item.transaction_type]
+
+    return {
+        'id': item.id,
+        'transactionType': item.transaction_type,
+        'transactionTypeStr': type_name,
+        'occurrenceAt': item.occurrence_at,
+        'value': item.value,
+        'cpf': item.cpf,
+        'card': item.card,
+        'storeOwner': item.store_owner,
+        'storeName': item.store_name
+    }
 
 def _convert_to_date(date_str: str, date_format: str='%Y%m%d%H%M%S') -> datetime:
     """
@@ -62,6 +91,9 @@ def _import_entry(line: bytes):
         _cnab_entry.value *= -1 #To help on group_by(sum)
 
     _cnab_entry.cpf = line[CNAB_CPF.start:CNAB_CPF.end].decode("utf-8")
+    if _cnab_entry.cpf.isdigit() is False:
+        raise Exception('CPF is wrong formation')
+
     _cnab_entry.card = line[CNAB_CARTAO.start:CNAB_CARTAO.end].decode("utf-8")
     _cnab_entry.store_owner = line[CNAB_LOJA_DONO.start:CNAB_LOJA_DONO.end].decode("utf-8").strip()
     _cnab_entry.store_name = line[CNAB_LOJA_NOME.start:CNAB_LOJA_NOME.end].decode("utf-8").strip()
@@ -85,27 +117,29 @@ def _import_entry(line: bytes):
 @bp.route('/list/all', methods=['GET'])
 def list_all():
     """
-    Will route to cnab home
+    Will list all stores
     ---
-    description: Will route to cnab home page, to upload and filter entries.
-    parameters:
-      - name: username
-        in: formData
-        type: string
-        required: true
-      - name: password
-        in: formData
-        type: string
-        required: true
+    description: Will list all stores aggregated by sum(value)
+    definitions:
+      Store:
+        type: object
+        properties:
+          id:
+            type: number
+          storeName:
+            type: string
+          value:
+            type: number
+            format: float
     responses:
       200:
-        description: User successfully logged in.
-      400:
-        description: User login failed.
+        description: An array of objects with all stores with SUM aggregation by value.
+        schema:
+          $ref: '#definitions/Store'
     """
 
     transaction_query = TransactionEntry.query.with_entities(TransactionEntry.store_id, TransactionEntry.store_name, func.sum(TransactionEntry.value).label('value'))
-    transactions = transaction_query.group_by(TransactionEntry.store_name).all()
+    transactions = transaction_query.group_by(TransactionEntry.store_id, TransactionEntry.store_name).all()
     serialized_object = [{ 'id': _t.store_id , 'storeName': _t.store_name, 'value': round(_t.value, 2) } for _t in transactions]
     return jsonify(serialized_object), 200
 
@@ -115,17 +149,51 @@ def list_per_store(store_id):
     """
     Will route to cnab home
     ---
-    description: Will route to cnab home page, to upload and filter entries.
+    description: Will fetch all transaction from a giving store_id
     parameters:
-      - name: password
-        in: formData
-        type: string
+      - name: store_id
+        in: path
+        type: number
         required: true
+        description: Store id to retrieve all transactions
+    definitions:
+      Transaction:
+        type: object
+        properties:
+          id:
+            type: number
+          transactionType:
+            type: number
+          occurrenceAt:
+            type: string
+            format: date
+          value:
+            type: number
+            format: float
+          cpf:
+            type: string
+          card:
+            type: string
+          storeOwner:
+            type: string
+          storeName:
+            type: string
+      ErrorMessage:
+        type: object
+        properties:
+          message:
+            type: string
     responses:
       200:
-        description: User successfully logged in.
+        description: A list of transactions.
+        schema:
+          $ref: '#definitions/Transaction'
       400:
-        description: User login failed.
+        description: If could not find store.
+        schema:
+          $ref: '#definitions/ErrorMessage'
+      404:
+        description: If url is malformed
     """
 
     store_model = Store.query.get(store_id)
@@ -135,7 +203,7 @@ def list_per_store(store_id):
         }), 400
 
     cnab_list = TransactionEntry.query.filter_by(store_id=store_id).all()
-    serialized_object = [_c.serialize_cnab_item for _c in cnab_list]
+    serialized_object = [_serialize_cnab_item(_c) for _c in cnab_list]
     return jsonify(serialized_object), 200
 
 
@@ -156,16 +224,20 @@ def upload_file():
         description: File successfully uploaded and imported.
       400:
         description: Error on importing the whole file.
-        content:
-          - application/json:
-            schema:
-              message: message error
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
 
     :return:
     """
-    if len(request.files) != 1:
+    if len(request.files) != 1 or 'file' not in request.files:
+        message = 'There is no files on request content'
+        if 'file' not in request.files:
+            message = 'Wrong post request'
         return jsonify({
-            'message': 'There is no files on request content'
+            'message': message
         }), 400
 
     file = request.files['file']

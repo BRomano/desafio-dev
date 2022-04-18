@@ -5,8 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "style": "tailwindcss -i interview/static/src/tailwind.css -o interview/static/css/main.css"
+    "lint": "vue-cli-service lint"
   },
   "main": "index.js",
   "_id": "interview@1.0.0",

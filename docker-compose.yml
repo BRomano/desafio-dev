@@ -1,8 +1,12 @@
-version: '3.5'
+version: '3'
 services:
   mysql:
     image: mysql:8.0.28
     restart: always
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent" ]
+      interval: 3s
+      retries: 5
     environment:
       - MYSQL_DATABASE=interview
       - MYSQL_ROOT_PASSWORD=#Mudar123
@@ -34,14 +38,11 @@ services:
       - DATABASE_URL=mysql://BRomano:#Mudar123@mysql:3306/interview
       - SQLALCHEMY_ECHO=False
     depends_on:
-      - mysql
+      - migration
   proxy:
     build: front
     restart: always
     ports:
       - 80:80
-    environment:
-      - VUE_APP_BASE_URL=http://159.223.180.98
-      - VUE_APP_REQUEST_TIMEOUT=0
     depends_on:
       - interview

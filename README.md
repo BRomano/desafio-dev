@@ -13,7 +13,8 @@ De acordo com o desafio proposto, para cada item descrevi os principais pontos q
   * Pequenas validações, e maneiras de autilizar o UX, como não foi frisado absolutamente nada sobre a parte frontend, foquei os esforços no backend.
 
 > 2. Interpretar ("parsear") o arquivo recebido, normalizar os dados, e salvar corretamente a informação em um banco de dados relacional, se atente as documentações que estão logo abaixo.
-* O [endpoint]() de upload de arquivo, recebe o arquivo lê linha a linha, extrai os dados, transforma os dados e então insere na base de dados.
+* O [endpoint](http://159.223.180.98/api/apidocs/#/default/post_api_byCoders_upload) de upload de arquivo, recebe o arquivo lê linha a linha, extrai os dados, transforma os dados e então insere na base de dados.
+* Linhas corrompidas ou com problemas de validação o importador ignora, não retornando erro na importação.
 * Para armazenar os dados, criei uma tabela de transação e uma tabela de loja.
 * A loja é inserida com um primary key, e cada transação tem uma loja como foreign key.
   * A chave da loja para inserir é somente o nome dela, como é feriado e acabei não tirando essa dúvida, interpretei desta maneira.
@@ -50,12 +51,20 @@ def _convert_to_date(date_str: str, date_format: str='%Y%m%d%H%M%S') -> datetime
 
 > 4. Ser escrita na sua linguagem de programação de preferência
 
-Escrito em Python, utilizando o framework Flask e no frontend usando vue.js. A moça do RH assim solicitou, e é a Stack que utilizo e tenho maior familiaridade hoje.
+* Escrito em Python, utilizando o framework Flask e no frontend usando vue.js.
+* A moça do RH assim solicitou, e é a Stack que utilizo e tenho maior familiaridade hoje.
 
 > 5. Ser simples de configurar e rodar, funcionando em ambiente compatível com Unix (Linux ou Mac OS X). Ela deve utilizar apenas linguagens e bibliotecas livres ou gratuitas.
 
-Para simplificar o run, configurei tudo dentro de dockers, e um docker compose, e também estou disponibilizando no servidor []()
-TODO finalziar configuração DOCKER e passo a passo de como rodar...
+* Para simplificar o run, configurei tudo dentro de dockers, e um docker compose, e também estou disponibilizando no [endereço](http://159.223.180.98)
+* Foram criados 2 dockers.
+  * Docker da aplicação backend, que cria todo um ambiente em python e roda atras de um gunicorn (Para aplicações de produção)
+  * Criado um Docker de frontend, que possui um nginx como reverse proxy, e faz o build de um vue.js
+  * E dentro do docker-compose, ele junta o banco de dados, e as duas imagens e configura tudo e roda.
+
+Para rodar o projeto basta utilizar
+> docker-compose up
+
 
 > 6. Git com commits atomicos e bem descritos
 
@@ -72,8 +81,8 @@ Cada pasta interna tem o dockerfile respectivo do serviço, sendo separado em:
 1. interview é o backend, configurado em Dockerfile para rodar um python
 2. Front é a pasta que esta toda a parte do projeto frontend e nessa configuração irá compilar todo o projeto frontend e configurar um nginx para servir como reverse proxy. Sendo que tudo que vier na URL /api será redirecionado para o backend, senão serve a aplicação vue.js.
 3. Em docker-compose.yml temos as configurações:
-   1. Serviço db, configuração de um mysql, propositalmente ele não tem um binded volume, desta forma se for reiniciado o serviço zera o database. Este banco de dados roda em uma VPC chamada **backnet**, para manter acesso ao banco privado.
-   2. Serviço backend, é o docker python, com acesso 
+   1. Serviço database, migratiion, backend e frontend.
+   2. Feita toda configuração para o projeto rodar em ambiente de **Produção**, com nginx, gunicorn, build da aplicação front, e build da aplicação backend.
 
 > 11. Incluir informação descrevendo como consumir o endpoint da API
 
@@ -98,18 +107,9 @@ RUN pipenv install .
 ````
 
 * E o gunicorn pode chamar a aplicação através de package:function(configuration)
-````dockerfile
-CMD ["pipenv", "run", "gunicorn", "--workers", "8", "--bind", "0.0.0.0:5000", "interview:create_app('DevConfig')", "--max-requests", "10000", "--timeout", "5", "--keep-alive", "5", "--log-level", "info"]
-````
-
 * Desta forma o pacote pode ser usado como qualquer outro pacote de python, com from... import..., isso traz uma oportunidade para arquitetar uma aplicação em grande escala.
+* Também auxilia na configuração de pipelines CI/CD.
 
 > 3. Documentação da api.(Será um diferencial e pontos extras se fizer)
 
-Toda explicação da documentação da API esta descrita no item 11 deste documento, bem como em acessível pelo link [acessar](http://159.223.180.98/api/apidocs/#/) 
-
-### Observações
-> Configurado autoflush: True na session connection, para resolver problema de store_id no bulk insert.
-> O correto seria o bulk insert ser realizado por uma task do celery, e não em uma request.
-
-> 
+Toda explicação da documentação da API esta descrita no item 11 deste documento, bem como em acessível pelo link [acessar](http://159.223.180.98/api/apidocs/#/)  

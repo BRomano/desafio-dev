@@ -10,6 +10,9 @@ WORKDIR $HOME
 # copy application
 COPY . $HOME
 
+ENV VUE_APP_BASE_URL=""
+ENV VUE_APP_REQUEST_TIMEOUT=0
+
 #install all node packages
 RUN yarn install && yarn run build
 

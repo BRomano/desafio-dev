@@ -17,30 +17,114 @@
 
       <h2> Lista de Lojas e saldo</h2>
 
-      <div v-if="storeId" @click="listEntries">
-        Loja - {{ storeId }} - Value = {{ totalValue }}
-      </div>
-
-      <div class="store-header">
-        <span> Store Name </span>
-        <span> Value </span>
-      </div>
-
-      <div v-for="item in stores" :key="item.id" class="store-body">
-        <div class="store-name">
-          <span>
-            # {{ item.id }} - {{ item.storeName }}
+      <div v-if="store" @click="listEntries" class="transaction-store-header">
+        <div class="justify-center" style="width: 20%" @click.stop="listEntries">
+          <span style="background-color: rgba(89,255,0,0.56); margin: 2px; padding: 2px; font-size: 12px; border-radius: 4px;">
+            Voltar
           </span>
         </div>
+        <div>
+          Loja: {{ store.storeName }}
+        </div>
+        <div>
+          Saldo: {{ totalValue | value }}
+        </div>
+      </div>
 
-        <div class="value">
-          <span>
-            R$ {{ item.value }}
-          </span>
+    <!-- STORE or Transaction     -->
+      <div :class="{'transaction-grid': store, 'store-grid': !store}">
+        <!--   HEADER     -->
+        <div class="store-header" v-if="!store">
+            <div class="justify-start" style="width: 50%">
+              <span>
+                Store Name
+              </span>
+            </div>
+            <div class="justify-start" style="width: 30%">
+              <span>
+                Value
+              </span>
+            </div>
+            <div class="justify-center" style="width: 20%">
+              <span>
+                Action
+              </span>
+            </div>
+        </div>
+        <div class="store-header" v-else>
+          <div class="justify-start" style="width: 30%">
+              <span>
+                Store Owner
+              </span>
+            </div>
+          <div class="justify-start" style="width: 20%">
+              <span>
+                CPF
+              </span>
+            </div>
+          <div class="justify-center" style="width: 20%">
+              <span>
+                Date
+              </span>
+            </div>
+          <div class="justify-center" style="width: 15%">
+              <span>
+                Type
+              </span>
+            </div>
+          <div class="justify-center" style="width: 15%">
+              <span style="font-size: 16px">
+                Value
+              </span>
+            </div>
         </div>
 
-        <div class="actions" @click="openStore(item.id)">
-          Button
+        <!--    BODY    -->
+        <div v-for="item in stores" :key="item.id" class="store-body-row" :class="{'bg-red': item.value < 0, 'bg-green': item.value > 0}">
+          <template v-if="!store">
+            <div class="justify-start" style="width: 50%">
+              <span>
+                # {{ item.id }} - {{ item.storeName }}
+              </span>
+            </div>
+            <div class="justify-start" style="width: 30%">
+              <span>
+                {{ item.value | value }}
+              </span>
+            </div>
+            <div class="justify-center" style="width: 20%" @click="openStore(item)">
+              <span style="background-color: rgba(89,255,0,0.56); margin: 2px; padding: 2px; font-size: 12px; border-radius: 4px;">
+                open
+              </span>
+            </div>
+          </template>
+          <template v-else>
+            <div class="justify-start" style="width: 30%">
+              <span>
+                # {{ item.id }} - {{ item.storeOwner }}
+              </span>
+            </div>
+            <div class="justify-start" style="width: 20%">
+              <span>
+                {{ item.cpf | cpf }}
+              </span>
+            </div>
+            <div class="justify-center" style="width: 20%">
+              <span>
+                {{ item.occurrenceAt | to_date }}
+              </span>
+            </div>
+            <div class="justify-center" style="width: 15%">
+              <span style="font-size: 12px">
+                {{ item.transactionTypeStr }}
+              </span>
+            </div>
+            <div class="justify-center" style="width: 15%">
+              <span style="font-size: 16px">
+                {{ item.value | value }}
+              </span>
+            </div>
+          </template>
         </div>
       </div>
     </div>
@@ -63,7 +147,7 @@ export default class HelloWorld extends Vue {
 
   private stores: Array<Cnab> = [];
 
-  private storeId = 0;
+  private store?: Cnab;
 
   get totalValue() {
     const valueSum = this.stores.reduce((sum, item) => sum + item.value, 0);
@@ -75,6 +159,7 @@ export default class HelloWorld extends Vue {
 
     // eslint-disable-next-line prefer-destructuring
     this.uploadFile = file[0];
+    e.currentTarget.value = '';
   }
 
   submitCNAB(): Promise<any> {
@@ -93,14 +178,14 @@ export default class HelloWorld extends Vue {
   listEntries(): Promise<any> {
     return byCoderService.listEntries().then((response: ResponseData) => {
       this.stores = response.data;
-      this.storeId = 0;
+      this.store = undefined;
       return true;
     });
   }
 
-  openStore(storeId: number): Promise<any> {
-    this.storeId = storeId;
-    return byCoderService.listStoreTransactions(storeId).then((response: ResponseData) => {
+  openStore(store: Cnab): Promise<any> {
+    this.store = store;
+    return byCoderService.listStoreTransactions(this.store.id).then((response: ResponseData) => {
       this.stores = response.data;
       return true;
     });
@@ -132,14 +217,14 @@ export default class HelloWorld extends Vue {
   }
 
   .content-box {
-    width: 100%;
+    width: 64rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 
     &.content-area {
-      width: 80%;
+      width: 90% !important;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -148,7 +233,7 @@ export default class HelloWorld extends Vue {
   }
 
   .upload_box {
-    width: 32rem;
+    width: 100%;
     height: 3rem;
     display: flex;
     justify-content: space-around;
@@ -159,9 +244,8 @@ export default class HelloWorld extends Vue {
     border-style: solid;
     border-color: darkgrey;
     cursor: pointer;
-  }
 
-  .x-button {
+    .x-button {
     border-width: 1px;
     border-style: solid;
     border-color: red;
@@ -171,47 +255,66 @@ export default class HelloWorld extends Vue {
       border-color: darkgrey;
     }
   }
+  }
+
+  .store-grid {
+    width: 32rem;
+  }
+
+  .transaction-grid {
+    width: 48rem;
+  }
 
   .store-header {
     width: 100%;
+    height: 28px;
     display: flex;
     justify-content: space-around;
+    align-items: center;
 
-    border-width: 1px;
+    border-width: 0;
+    border-bottom-width: 1px;
     border-style: solid;
     border-color: darkgrey;
   }
 
-  .store-body {
+  .store-body-row {
     width: 100%;
+    height: 24px;
     display: flex;
     justify-content: space-between;
-
-    border-width: 1px;
-    border-style: solid;
-    border-color: darkgrey;
+    align-items: center;
 
     //background-color: lightgrey;
     &:nth-child(even) {
-      background-color: antiquewhite;
+      background-color: lightgrey;
     }
 
-    .store-name {
-      width: 50%;
+    .justify-start {
       display: flex;
       justify-content: flex-start;
     }
 
-    .value {
-      width: 30%;
-      display: flex;
-      justify-content: flex-start;
-    }
-
-    .actions {
-      width: 20%;
+    .justify-center {
       display: flex;
       justify-content: center;
     }
+  }
+
+  .bg-red {
+    background-color: rgba(255, 0, 0, 0.5) !important;
+  }
+  .bg-green {
+    background-color: rgba(144, 238, 144, 0.48) !important;
+  }
+
+  .transaction-store-header {
+    height: 32px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-width: 2px 0px;
+    border-style: solid
   }
 </style>
