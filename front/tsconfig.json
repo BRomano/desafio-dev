@@ -16,7 +16,7 @@
     ],
     "paths": {
       "@/*": [
-        "front/web/*"
+        "web/*"
       ]
     },
     "lib": [
@@ -27,9 +27,9 @@
     ]
   },
   "include": [
-    "front/web/**/*.ts",
-    "front/web/**/*.tsx",
-    "front/web/**/*.vue"
+    "web/**/*.ts",
+    "web/**/*.tsx",
+    "web/**/*.vue"
   ],
   "exclude": [
     "node_modules"

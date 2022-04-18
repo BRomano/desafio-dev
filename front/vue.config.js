@@ -5,13 +5,13 @@ module.exports = {
   // assetsDir: './front/web',
   pages: {
     index: {
-      entry: './front/web/main.ts',
-      template: 'front/public/index.html',
+      entry: './web/main.ts',
+      template: 'public/index.html',
       filename: 'index.html',
     },
   },
   chainWebpack: (config) => {
     config.resolve.alias
-      .set('@', path.join(__dirname, './front/web'));
+      .set('@', path.join(__dirname, './web'));
   },
 };

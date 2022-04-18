@@ -9,7 +9,7 @@ De acordo com o desafio proposto, para cada item descrevi os principais pontos q
 * Na parte Web evitei utilizar qualquer css framework (como Bootstrap), porém se pudesse utilizar um framework css eu utilizaria [tailwind](https://tailwindcss.com/).
 * Como não se falou na utilização de um JS framework, escolhi vue.js pela familiaridade que tenho, e escrevi o CSS na mão a maneira antiga.
 * Desta forma criei todo o desafio dentro de uma mesma tela, evitando complexidades do projeto, até pela natureza de "desafio".
-* Para o upload do **CNAB.txt** criei uma funcionalidade de upload do arquivo e um [endpoint](http://127.0.0.1:5000/api/apidocs/#/default/post_api_byCoders_upload) no backend.
+* Para o upload do **CNAB.txt** criei uma funcionalidade de upload do arquivo e um [endpoint](http://159.223.180.98/api/apidocs/#/default/post_api_byCoders_upload) no backend.
   * Pequenas validações, e maneiras de autilizar o UX, como não foi frisado absolutamente nada sobre a parte frontend, foquei os esforços no backend.
 
 > 2. Interpretar ("parsear") o arquivo recebido, normalizar os dados, e salvar corretamente a informação em um banco de dados relacional, se atente as documentações que estão logo abaixo.
@@ -40,11 +40,11 @@ def _convert_to_date(date_str: str, date_format: str='%Y%m%d%H%M%S') -> datetime
 > 3. Exibir uma lista das operações importadas por lojas, e nesta lista deve conter um totalizador do saldo em conta
 
 * Na mesma tela de upload de arquivos, o frontend ao carregar a página carrega uma tela de sumário das lojas e o respectivo saldo.
-* Para isso o frontend chama o [endpoint](http://127.0.0.1:5000/api/apidocs/#/default/get_api_byCoders_list_all).
+* Para isso o frontend chama o [endpoint](http://159.223.180.98/api/apidocs/#/default/get_api_byCoders_list_all).
   * Este endpoint irá agregar todas as lojas e fazer um SUM do valor, por este motivo que guardei o valor com sinal.
-  * Este [endpoint](http://127.0.0.1:5000/api/apidocs/#/default/get_api_byCoders_list_all), também evita carregar uma quantidade enorme de dados, sem a real necessidade do uso, por este motivo que decidi implementar desta forma.
+  * Este [endpoint](http://159.223.180.98/api/apidocs/#/default/get_api_byCoders_list_all), também evita carregar uma quantidade enorme de dados, sem a real necessidade do uso, por este motivo que decidi implementar desta forma.
 * No frontend quando clicado em cima da loja, ele carrega a lista de transações daquela respectiva loja.
-  * Para isso o frontend chama o [endpoint](http://127.0.0.1:5000/api/apidocs/#/default/get_api_byCoders_list__store_id_) passando a **store_id** como parâmetro.
+  * Para isso o frontend chama o [endpoint](http://159.223.180.98/api/apidocs/#/default/get_api_byCoders_list__store_id_) passando a **store_id** como parâmetro.
 
 * **Como ficou em aberto o item 3, se era pra mostrar um listão de todas as transações importadas, ou se agregar. Bem como criar um saldo. Então decidi criar dois endpoints um para cada, e fazer esta navegação simplificada no frontend.**
 
@@ -78,7 +78,7 @@ Cada pasta interna tem o dockerfile respectivo do serviço, sendo separado em:
 > 11. Incluir informação descrevendo como consumir o endpoint da API
 
 * Toda documentação dos endpoints foi configurado utilizando [openAPI 3.0](https://swagger.io/), entendo que esta é uma ótima solução para disponibilizar configurações, e é um padrão muito bem aceito.
-* Para acessar a documentação dos 3 endpoints configurados [acessar](http://127.0.0.1:5000/api/apidocs/#/).
+* Para acessar a documentação dos 3 endpoints configurados [acessar](http://159.223.180.98/api/apidocs/#/).
 * Inclusive a documentação auxilia para consumir e testar os endpoints, bem como o frontend também os consome.
 
 ### Aplicação Não precisa fazer...
@@ -89,11 +89,24 @@ Decidi não fazer a autenticação, apesar de ter criado uma rota para uma possi
 
 > 2. Ser escrita usando algum framework específico (mas não há nada errado em usá-los também, use o que achar melhor).
 
-Utilizei Python, Flask
+Utilizei Python, Flask.
+* Configurado de acordo com a [especificação para large applications](https://flask.palletsprojects.com/en/2.1.x/patterns/packages/) como package.
+* Isso pode ser visto no Dockerfile, quando instala o python package usando pipenv. Desta forma a aplicação dispensa mais uma variável de ambiente para ser configurada "FLASK_APP"
+````dockerfile
+COPY setup.py $HOME
+RUN pipenv install .
+````
+
+* E o gunicorn pode chamar a aplicação através de package:function(configuration)
+````dockerfile
+CMD ["pipenv", "run", "gunicorn", "--workers", "8", "--bind", "0.0.0.0:5000", "interview:create_app('DevConfig')", "--max-requests", "10000", "--timeout", "5", "--keep-alive", "5", "--log-level", "info"]
+````
+
+* Desta forma o pacote pode ser usado como qualquer outro pacote de python, com from... import..., isso traz uma oportunidade para arquitetar uma aplicação em grande escala.
 
 > 3. Documentação da api.(Será um diferencial e pontos extras se fizer)
 
-Toda explicação da documentação da API esta descrita no item 11 deste documento, bem como em acessível pelo link [acessar](http://127.0.0.1:5000/api/apidocs/#/) 
+Toda explicação da documentação da API esta descrita no item 11 deste documento, bem como em acessível pelo link [acessar](http://159.223.180.98/api/apidocs/#/) 
 
 ### Observações
 > Configurado autoflush: True na session connection, para resolver problema de store_id no bulk insert.

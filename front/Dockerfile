@@ -1,17 +1,20 @@
 # 1. build vue.js application
 FROM node:lts-alpine AS development
 
+ENV HOME=/home/app
+ENV APP_HOME=/home/app/front
+
 #Set work directory
-WORKDIR /app
+WORKDIR $HOME
 
 #copy package for build purpose
-COPY package.json yarn.lock /app/
+COPY package.json yarn.lock $HOME
 
 #install all node packages
 RUN npm install -g yarn && yarn install
 
 # copy application
-COPY . /app
+COPY . $APP_HOME
 
 #create a new entry point
 FROM development as build
