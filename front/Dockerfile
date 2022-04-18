@@ -1,34 +1,23 @@
 # 1. build vue.js application
-FROM node:lts-alpine AS development
+FROM node:lts-alpine AS build
 
-ENV HOME=/home/app
-ENV APP_HOME=/home/app/front
+ENV HOME=/home/app/
 
 #Set work directory
 WORKDIR $HOME
 
-#copy package for build purpose
-COPY package.json yarn.lock $HOME
+# copy application
+COPY . $HOME
 
 #install all node packages
-RUN npm install -g yarn && yarn install
-
-# copy application
-COPY . $APP_HOME
-
-#create a new entry point
-FROM development as build
-
-#build application
-RUN yarn run build
+RUN yarn install && yarn run build
 
 # 2. Setup nginx
 FROM nginx:1.19.10-alpine
 
-COPY --from=build /app/.nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /home/app/.nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 WORKDIR /usr/share/nginx/html
-
-COPY --from=build /app/dist .
-
+#COPY --from=build /home/app/dist .
+EXPOSE 80
 ENTRYPOINT ["nginx", "-g", "daemon off;"]

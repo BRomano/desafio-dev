@@ -20,13 +20,12 @@ RUN chown -R app:app $HOME
 
 RUN pip install --upgrade pip --no-cache-dir
 RUN pip install pipenv --no-cache-dir
-RUN pipenv install
+RUN pipenv install --system
 
 COPY setup.py $HOME
-RUN pipenv install .
+RUN pip install .
 
 EXPOSE 5000
 
 USER app
 
-CMD ["pipenv", "run", "gunicorn", "--workers", "8", "--bind", "0.0.0.0:5000", "interview:create_app('DevConfig')", "--max-requests", "10000", "--timeout", "5", "--keep-alive", "5", "--log-level", "info"]
