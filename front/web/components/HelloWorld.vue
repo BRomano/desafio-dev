@@ -1,6 +1,7 @@
 <template>
   <div class="content-box">
     <h1>{{ msg }}</h1>
+    <h2> <a href="/api/apidocs/" target="_blank">Documentação dos ENDPOINTS</a> </h2>
 
     <div class="content-area">
       <h2> Adicione seu arquivo aqui</h2>

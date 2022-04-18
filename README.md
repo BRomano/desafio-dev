@@ -65,6 +65,8 @@ def _convert_to_date(date_str: str, date_format: str='%Y%m%d%H%M%S') -> datetime
 Para rodar o projeto basta utilizar
 > docker-compose up
 
+> `Como o mysql demora para estar ready, o serviço de migration fica fazendo pooling ate conseguir criar o banco de dados, então necessário esperar um pouco para utilizar a aplicação. Até que o mysql crie as estruturas internas.
+`
 
 > 6. Git com commits atomicos e bem descritos
 
