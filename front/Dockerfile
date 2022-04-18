@@ -21,7 +21,7 @@ WORKDIR /home/app/
 COPY --from=build /home/app/.nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 WORKDIR /usr/share/nginx/html
-COPY --from=build /home/app/dist/* ./
+COPY --from=build /home/app/dist ./
 
 EXPOSE 80
 

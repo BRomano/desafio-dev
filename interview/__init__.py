@@ -30,23 +30,19 @@ def create_app(config_class='DevConfig'):
                 , supports_credentials=True)
 
     cache.init_app(app)
-    swagger_config = {
-        "headers": [
-        ],
-        "specs": [
-            {
-                "endpoint": 'apispec_1',
-                "route": '/apispec_1.json',
-                "rule_filter": lambda rule: True,  # all in
-                "model_filter": lambda tag: True,  # all in
-            }
-        ],
-        "static_url_path": "/flasgger_static",
-        # "static_folder": "static",  # must be set by user
-        "swagger_ui": True,
-        "specs_route": "/api/apidocs/"
-    }
+    swagger_config = Swagger.DEFAULT_CONFIG
+    swagger_config["specs"] = [
+        {
+            "endpoint": 'apispec_1',
+            "route": '/apispec_1.json',
+            "rule_filter": lambda rule: True,  # all in
+            "model_filter": lambda tag: True,  # all in
+        }
+    ]
 
+    swagger_config["static_url_path"] = "/api/flasgger_static"
+    swagger_config["swagger_ui"] = True
+    swagger_config["specs_route"] = "/api/apidocs/"
     swag = Swagger(app, config=swagger_config)
 
     init_routes(app)

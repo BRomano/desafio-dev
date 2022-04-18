@@ -42,6 +42,6 @@ services:
       - 80:80
     environment:
       - VUE_APP_BASE_URL=http://159.223.180.98
-        VUE_APP_REQUEST_TIMEOUT=0
+      - VUE_APP_REQUEST_TIMEOUT=0
     depends_on:
       - interview
