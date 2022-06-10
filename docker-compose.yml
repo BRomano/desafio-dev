@@ -13,6 +13,8 @@ services:
       - MYSQL_ROOT_PASSWORD=#Mudar123
       - MYSQL_USER=BRomano
       - MYSQL_PASSWORD=#Mudar123
+      - ST_MONITOR_MYSQL_DB_USER="spm-user"
+      - ST_MONITOR_MYSQL_DB_PASSWORD="spm-password"
     expose:
       - 3306
     ports:
@@ -48,3 +50,23 @@ services:
       - 80:80
     depends_on:
       - interview
+  st-agent:
+    image: sematext/agent:latest
+    environment:
+      - INFRA_TOKEN=c3644c5c-7306-49c6-b448-488daa8d3769
+      - SERVER_BASE_URL=https://spm-receiver.sematext.com
+      - LOGS_RECEIVER_URL=https://logsene-receiver.sematext.com
+      - EVENT_RECEIVER_URL=https://event-receiver.sematext.com
+      - COMMAND_SERVER_URL=https://command.sematext.com
+    cap_add:
+      - SYS_ADMIN
+    restart: always
+    volumes:
+      - /:/hostfs:ro
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+      - /var/run/:/var/run
+      - /sys/kernel/debug:/sys/kernel/debug
+      - /sys:/host/sys:ro
+      - /dev:/hostfs/dev:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
